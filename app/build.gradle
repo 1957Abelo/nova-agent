@@ -2,6 +2,17 @@ plugins {
     id 'com.android.application'
 }
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file("local.properties")
+
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream {
+        localProperties.load(it)
+    }
+}
+
+def geminiApiKey = localProperties.getProperty("GEMINI_API_KEY", "")
+
 android {
     namespace 'com.nova.agent'
     compileSdk 35
@@ -10,17 +21,24 @@ android {
         applicationId 'com.nova.agent'
         minSdk 26
         targetSdk 35
-        versionCode 1
-        versionName '0.1'
+        versionCode 2
+        versionName '0.2'
     }
 
     buildTypes {
         debug {
             minifyEnabled false
+            buildConfigField "String", "GEMINI_API_KEY", "\"${geminiApiKey.replace("\\", "\\\\").replace("\"", "\\\"")}\""
         }
+
         release {
             minifyEnabled false
+            buildConfigField "String", "GEMINI_API_KEY", "\"\""
         }
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     compileOptions {
